@@ -3,12 +3,12 @@ local CanvasManager = require("src.canvas")
 local utils = require("src.utils")
 local Player = require("src.player")
 local Camera = require("src.camera")
+local shaders = require("src.shaders.shaders")
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
     image = love.graphics.newImage("dump/octocat-1747987801490.png")
-    shader = love.graphics.newShader("src/shaders/thelight.glsl")
     lightRadius = 500
 
     player = Player:new(const.GAME_WIDTH/2, const.GAME_HEIGHT/2)
@@ -16,7 +16,8 @@ function love.load()
 
     canvases = CanvasManager:new()
     canvases:create("main", const.GAME_WIDTH, const.GAME_HEIGHT, const.SCALE_FACTOR, {"nearest", "nearest"})
-    -- canvases:addShader("main", shader)
+    -- canvases:addShader("main", shaders.light)
+    shaders.load()
 end
 
 function love.update(dt)
@@ -31,8 +32,8 @@ function love.update(dt)
     camera:setPosition(x, y)
 
     local a, b = utils.screenToWorld(const.GAME_WIDTH/2, const.GAME_HEIGHT/2 - 10)
-    shader:send("lightPos", {a, b})
-    shader:send("radius", lightRadius)
+    shaders.light:send("lightPos", {a, b})
+    shaders.light:send("radius", lightRadius)
 end
 
 function love.draw()
@@ -52,7 +53,7 @@ function love.draw()
         camera:detach()
     end)
 
-    love.graphics.setShader(shader)
+    love.graphics.setShader(shaders.light)
     canvases:drawAll()
     love.graphics.setShader()
 

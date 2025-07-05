@@ -18,6 +18,10 @@ function utils.worldToScreen(x, y)
     return x / scaleX, y / scaleY
 end
 
+function utils.isValueAround(value, low, up)
+    return value >= low and value <= up
+end
+
 -- animate spritesheet with quad tables (frames)
 -- NOTE: fps is how many sprite will be shown per second, not the frame speed
 function utils.animateSpritesheet(frames, mode, fps)

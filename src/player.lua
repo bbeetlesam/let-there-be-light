@@ -46,6 +46,11 @@ function Player:new(x, y, speed, bool)
     self.y = y or 0
     self.speed = speed or 60
     self.playable = (bool == nil) and true or false
+
+    self.boundX = nil
+    self.boundY = nil
+    self.boundW = nil
+    self.boundH = nil
     return self
 end
 
@@ -73,8 +78,20 @@ function Player:update(dt)
         dy = dy / length
     end
 
-    self.x = self.x + dx * self.speed * dt
-    self.y = self.y + dy * self.speed * dt
+    -- player's pos update
+    local nextX = self.x + dx * self.speed * dt
+    local nextY = self.y + dy * self.speed * dt
+    self.clampedX, self.clampedY = false, false
+    if self.boundX and self.boundY and self.boundW and self.boundH then
+        self.clampedX = nextX < self.boundX or nextX > self.boundX + self.boundW
+        self.clampedY = nextY < self.boundY or nextY > self.boundY + self.boundH
+
+        self.x = math.max(self.boundX, math.min(nextX, self.boundX + self.boundW))
+        self.y = math.max(self.boundY, math.min(nextY, self.boundY + self.boundH))
+    else
+        self.x = nextX
+        self.y = nextY
+    end
 
     local moving = left or right or up or down
     local idle_move = left and right and not down and not up
@@ -94,6 +111,8 @@ function Player:update(dt)
     idleSprite:update(dt)
     walkUpSprite:update(dt)
     walkDownSprite:update(dt)
+
+    self.dx, self.dy = dx, dy
 end
 
 function Player:draw()
@@ -129,6 +148,25 @@ end
 
 function Player:setSpeed(speed)
     self.speed = speed or 60
+end
+
+function Player:getDirection()
+    return self.dx, self.dy
+end
+
+function Player:setBoundary(x, y, w, h)
+    self.boundX = x and (x - w/2) or nil
+    self.boundY = x and (y - h/2) or nil
+    self.boundW = w or nil
+    self.boundH = h or nil
+end
+
+function Player:isInsideBoundary()
+    return utils.isPosInside({self.x, self.y}, self.boundX - self.boundW/2, self.boundY - self.boundH/2, self.boundW, self.boundH)
+end
+
+function Player:isClamped()
+    return self.clampedX or self.clampedY
 end
 
 return Player

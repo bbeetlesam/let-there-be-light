@@ -71,9 +71,10 @@ function Player:update(dt)
     self.y = self.y + dy * self.speed * dt
 
     local moving = left or right or up or down
-    self.state = moving and State.WALK or State.IDLE
+    local idle_move = left and right and not down and not up
+    self.state = (moving and not idle_move) and State.WALK or State.IDLE
 
-    if moving then
+    if moving and not idle_move then
         if left then
             self.direction = Direction.LEFT
         elseif right then

@@ -1,10 +1,10 @@
 local utils = require("src.utils")
 
-local atlas = love.graphics.newImage("assets/img/atlas-maro.png")
+local atlas = love.graphics.newImage("assets/img/sprite-maro.png")
 local quads = {}
 
 local frameSize = 64
-local columns, rows = 4, 1
+local columns, rows = 4, 2
 for y = 0, rows - 1 do
     quads[y + 1] = {} -- (y+1)th row for certain anim (idle, walk, etc)
     for x = 0, columns - 1 do
@@ -19,9 +19,8 @@ for y = 0, rows - 1 do
     end
 end
 
-local charImage = love.graphics.newImage("assets/img/tes-maro03.png")
 local walkSprite = utils.animateSpritesheet(quads[1], "forth", 9)
--- local idleSprite = utils.animateSpritesheet(quads[2], "forth")
+local idleSprite = utils.animateSpritesheet(quads[2], "forth", 9)
 
 local Player = {}
 Player.__index = Player
@@ -41,7 +40,6 @@ local Direction = {
 
 function Player:new(x, y)
     local self = setmetatable({}, Player)
-    self.image = charImage
     self.x = x or 0
     self.y = y or 0
     self.speed = 60
@@ -84,6 +82,7 @@ function Player:update(dt)
     end
 
     walkSprite:update(dt)
+    idleSprite:update(dt)
 end
 
 function Player:draw()
@@ -95,7 +94,7 @@ function Player:draw()
     if self.state == State.WALK then
         love.graphics.draw(atlas, walkSprite:getFrame(), self.x, self.y, 0, flipx * 0.85, .85, 32, 32)
     elseif self.state == State.IDLE then
-        love.graphics.draw(self.image, self.x, self.y, 0, flipx * 0.85, .85, self.image:getWidth()/2, self.image:getHeight()/2)
+        love.graphics.draw(atlas, idleSprite:getFrame(), self.x, self.y, 0, flipx * 0.85, .85, 32, 32)
     end
 end
 

@@ -45,7 +45,7 @@ function opening:draw()
 
     if self.asking then
         self.text:print("Do you believe there's still courage", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*2/5, 3, 0.5, 0.5)
-        self.text:print("left in you?", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*2/5 + 60, 3, 0.5, 0.5)
+        self.text:print("left in him?", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*2/5 + 60, 3, 0.5, 0.5)
 
         local sizeA = love.keyboard.isDown("a") and {375, 125} or {350, 100}
         local sizeD = love.keyboard.isDown("d") and {375, 125} or {350, 100}

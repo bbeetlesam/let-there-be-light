@@ -4,6 +4,7 @@ local utils = require("src.utils")
 local Player = require("src.player")
 local Camera = require("src.camera")
 local shaders = require("src.shaders.shaders")
+local Font = require("src.font")
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
@@ -18,6 +19,8 @@ function love.load()
     canvases:create("main", const.GAME_WIDTH, const.GAME_HEIGHT, const.SCALE_FACTOR, {"nearest", "nearest"})
     -- canvases:addShader("main", shaders.light)
     shaders.load()
+
+    text = Font:new({"assets/img/sprite-font2.png", "assets/img/sprite-font1.png"}, {12, 12}, {16, 16}, 16, 6, 10)
 end
 
 function love.update(dt)
@@ -34,6 +37,7 @@ function love.update(dt)
     local a, b = utils.screenToWorld(const.GAME_WIDTH/2, const.GAME_HEIGHT/2 - 10)
     shaders.light:send("lightPos", {a, b})
     shaders.light:send("radius", lightRadius)
+    text:update(dt)
 end
 
 function love.draw()
@@ -61,6 +65,7 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Light: " .. lightRadius, 10, 10)
     love.graphics.print("X " .. x .. "\nY " .. y, 10, 40)
+    text:print("let there. be light.. maro?", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
 end
 
 function love.keyreleased(key, _, _)

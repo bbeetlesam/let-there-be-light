@@ -44,7 +44,7 @@ function Player:new(x, y)
     self.image = charImage
     self.x = x or 0
     self.y = y or 0
-    self.speed = 75
+    self.speed = 60
     return self
 end
 

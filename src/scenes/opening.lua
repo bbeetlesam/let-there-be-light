@@ -38,9 +38,9 @@ end
 
 function opening:draw()
     if utils.isValueAround(self.diffTime, 0, 3) then
-        self.text:print("Where am I?", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+        self.text:print("\"Where am I?\"", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
     elseif utils.isValueAround(self.diffTime, 3.5, 6.5) then
-        self.text:print("This is darker than usual...", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+        self.text:print("\"This is darker than usual...\"", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
     end
 
     if self.asking then

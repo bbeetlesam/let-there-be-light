@@ -16,8 +16,8 @@ function intro:update(dt)
     if self.transitioning then
         self.timer = self.timer + dt
 
-        if self.timer > 1.5 then
-            require("src.scenes.sceneManager"):load("maingame")
+        if self.timer > 2 then
+            require("src.scenes.sceneManager"):load("opening")
         end
     end
 end

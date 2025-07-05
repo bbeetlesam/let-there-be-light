@@ -40,22 +40,26 @@ local Direction = {
     RIGHT = "right",
 }
 
-function Player:new(x, y)
+function Player:new(x, y, speed, bool)
     local self = setmetatable({}, Player)
     self.x = x or 0
     self.y = y or 0
-    self.speed = 60
+    self.speed = speed or 60
+    self.playable = (bool == nil) and true or false
     return self
 end
 
 function Player:update(dt)
     local dx, dy = 0, 0
+    local left, right, up, down
 
     -- character's movement
-    local left  = love.keyboard.isDown("a")
-    local right = love.keyboard.isDown("d")
-    local up = love.keyboard.isDown("w")
-    local down = love.keyboard.isDown("s")
+    if self.playable then
+        left  = love.keyboard.isDown("a")
+        right = love.keyboard.isDown("d")
+        up = love.keyboard.isDown("w")
+        down = love.keyboard.isDown("s")
+    end
 
     if up then dy = dy - 1 end
     if down then dy = dy + 1 end
@@ -117,6 +121,14 @@ end
 
 function Player:getState()
     return self.state
+end
+
+function Player:setPlayable(bool)
+    self.playable = bool or false
+end
+
+function Player:setSpeed(speed)
+    self.speed = speed or 60
 end
 
 return Player

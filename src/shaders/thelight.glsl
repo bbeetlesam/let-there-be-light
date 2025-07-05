@@ -8,5 +8,5 @@ vec4 effect(vec4 color, Image texture, vec2 tex_coords, vec2 screen_coords) {
     intensity = floor(intensity * 5.0) / 7.0;
 
     vec4 texColor = Texel(texture, tex_coords);
-    return texColor * vec4(vec3(intensity), 1.0);
+    return texColor * vec4(vec3(intensity * 1, intensity * 1, intensity * 1), 1.0);
 }

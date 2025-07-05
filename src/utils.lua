@@ -22,6 +22,11 @@ function utils.isValueAround(value, low, up)
     return value >= low and value <= up
 end
 
+function utils.isPosInside(tablePos, x, y, w, h)
+    tablePos = tablePos or {0, 0}
+    return (tablePos[1] >= x and tablePos[1] <= x + w and tablePos[2] >= y and tablePos[2] <= y + h)
+end
+
 -- animate spritesheet with quad tables (frames)
 -- NOTE: fps is how many sprite will be shown per second, not the frame speed
 function utils.animateSpritesheet(frames, mode, fps)
@@ -67,5 +72,38 @@ function utils.animateSpritesheet(frames, mode, fps)
 
     return self
 end
+
+-- particle generator
+utils.particle = {
+    generateParticles = function(x, y, w, h, particleObj, occurence)
+        local particles = {}
+
+        for i = 1, occurence do
+            local px = math.random() * w + x
+            local py = math.random() * h + y
+
+            table.insert(particles, {
+                x = px,
+                y = py,
+                obj = particleObj -- bisa fungsi draw, image, dsb
+            })
+        end
+
+        return particles
+    end,
+
+    drawParticles = function(particles)
+        for _, p in ipairs(particles) do
+            if type(p.obj) == "function" then
+                p.obj(p.x, p.y)
+            elseif type(p.obj) == "userdata" and p.obj:typeOf("Image") then
+                love.graphics.draw(p.obj, p.x, p.y)
+            else
+                -- fallback: titik putih kecil
+                love.graphics.points(p.x, p.y)
+            end
+        end
+    end,
+}
 
 return utils

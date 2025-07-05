@@ -27,6 +27,10 @@ function utils.isPosInside(tablePos, x, y, w, h)
     return (tablePos[1] >= x and tablePos[1] <= x + w and tablePos[2] >= y and tablePos[2] <= y + h)
 end
 
+function utils.clamp(value, min, max)
+    return math.max(min, math.min(value, max))
+end
+
 -- animate spritesheet with quad tables (frames)
 -- NOTE: fps is how many sprite will be shown per second, not the frame speed
 function utils.animateSpritesheet(frames, mode, fps)

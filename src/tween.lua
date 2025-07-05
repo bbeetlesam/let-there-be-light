@@ -6,10 +6,12 @@ function Tween:new(startValue, endValue, duration, easing)
         startValue = startValue,
         endValue = endValue,
         duration = duration,
-        easing = easing or function(t) return t end, -- default easing func - linear
+        easing = easing or function(t) return t end, -- default linear
         time = 0,
         value = startValue,
         finished = false,
+        onFinishCallback = nil,
+        hasCalledFinish = false,
     }
     setmetatable(t, self)
     return t
@@ -24,11 +26,19 @@ function Tween:update(dt)
 
     if t >= 1 then
         self.finished = true
+        if self.onFinishCallback and not self.hasCalledFinish then
+            self.onFinishCallback()
+            self.hasCalledFinish = true
+        end
     end
 end
 
 function Tween:isFinished()
     return self.finished
+end
+
+function Tween:onFinish(callback)
+    self.onFinishCallback = callback
 end
 
 function Tween:reset(startValue, endValue, duration)
@@ -37,6 +47,7 @@ function Tween:reset(startValue, endValue, duration)
     self.duration = duration or self.duration
     self.time = 0
     self.finished = false
+    self.hasCalledFinish = false
 end
 
 return Tween

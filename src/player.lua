@@ -4,7 +4,7 @@ local atlas = love.graphics.newImage("assets/img/sprite-maro.png")
 local quads = {}
 
 local frameSize = 64
-local columns, rows = 4, 2
+local columns, rows = 4, 4
 for y = 0, rows - 1 do
     quads[y + 1] = {} -- (y+1)th row for certain anim (idle, walk, etc)
     for x = 0, columns - 1 do
@@ -21,6 +21,8 @@ end
 
 local walkSprite = utils.animateSpritesheet(quads[1], "forth", 9)
 local idleSprite = utils.animateSpritesheet(quads[2], "forth", 9)
+local walkUpSprite = utils.animateSpritesheet(quads[3], "forth", 9)
+local walkDownSprite = utils.animateSpritesheet(quads[4], "forth", 9)
 
 local Player = {}
 Player.__index = Player
@@ -76,24 +78,34 @@ function Player:update(dt)
 
     if moving and not idle_move then
         if left then
-            self.direction = Direction.LEFT
+            self.directionX = Direction.LEFT
         elseif right then
-            self.direction = Direction.RIGHT
+            self.directionX = Direction.RIGHT
         end
     end
 
+    self.directionY = up and Direction.UP or down and Direction.DOWN or nil
+
     walkSprite:update(dt)
     idleSprite:update(dt)
+    walkUpSprite:update(dt)
+    walkDownSprite:update(dt)
 end
 
 function Player:draw()
     local flipx = 1
-    if self.direction == Direction.LEFT then flipx = -1 end
-    if self.direction == Direction.RIGHT then flipx = 1 end
+    if self.directionX == Direction.LEFT then flipx = -1 end
+    if self.directionX == Direction.RIGHT then flipx = 1 end
 
     love.graphics.setColor(1, 1, 1)
     if self.state == State.WALK then
-        love.graphics.draw(atlas, walkSprite:getFrame(), self.x, self.y, 0, flipx * 0.85, .85, 32, 32)
+        if self.directionY == Direction.UP then
+            love.graphics.draw(atlas, walkUpSprite:getFrame(), self.x, self.y, 0, flipx * 0.85, .85, 32, 32)
+        elseif self.directionY == Direction.DOWN then
+            love.graphics.draw(atlas, walkDownSprite:getFrame(), self.x, self.y, 0, flipx * 0.85, .85, 32, 32)
+        else
+            love.graphics.draw(atlas, walkSprite:getFrame(), self.x, self.y, 0, flipx * 0.85, .85, 32, 32)
+        end
     elseif self.state == State.IDLE then
         love.graphics.draw(atlas, idleSprite:getFrame(), self.x, self.y, 0, flipx * 0.85, .85, 32, 32)
     end

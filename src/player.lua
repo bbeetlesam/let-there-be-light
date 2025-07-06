@@ -45,7 +45,7 @@ function Player:new(x, y, speed, bool)
     self.x = x or 0
     self.y = y or 0
     self.speed = speed or 60
-    self.playable = (bool == nil) and true or false
+    self.playable = bool
 
     self.boundX = nil
     self.boundY = nil

@@ -51,6 +51,11 @@ function Player:new(x, y, speed, bool)
     self.boundY = nil
     self.boundW = nil
     self.boundH = nil
+
+    self.limitMinX = nil
+    self.limitMaxX = nil
+    self.limitMinY = nil
+    self.limitMaxY = nil
     return self
 end
 
@@ -91,6 +96,14 @@ function Player:update(dt)
     else
         self.x = nextX
         self.y = nextY
+    end
+
+    -- hard limit boundary
+    if self.limitMinX and self.limitMaxX then
+        self.x = math.max(self.limitMinX, math.min(self.x, self.limitMaxX))
+    end
+    if self.limitMinY and self.limitMaxY then
+        self.y = math.max(self.limitMinY, math.min(self.y, self.limitMaxY))
     end
 
     local moving = left or right or up or down
@@ -159,6 +172,30 @@ function Player:setBoundary(x, y, w, h)
     self.boundY = x and (y - h/2) or nil
     self.boundW = w or nil
     self.boundH = h or nil
+end
+
+function Player:setHardLimits(minX, maxX, minY, maxY)
+    self.limitMinX = minX
+    self.limitMaxX = maxX
+    self.limitMinY = minY
+    self.limitMaxY = maxY
+end
+
+function Player:willHitLimit()
+    local nextX = self.x + self.dx
+    local nextY = self.y + self.dy
+
+    local hitX = false
+    local hitY = false
+
+    if self.limitMinX and self.limitMaxX then
+        hitX = nextX < self.limitMinX or nextX > self.limitMaxX
+    end
+    if self.limitMinY and self.limitMaxY then
+        hitY = nextY < self.limitMinY or nextY > self.limitMaxY
+    end
+
+    return hitX or hitY
 end
 
 function Player:isInsideBoundary()

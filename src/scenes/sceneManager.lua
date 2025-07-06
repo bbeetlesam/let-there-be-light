@@ -4,14 +4,15 @@ local sceneManager = {
 
 function sceneManager:load(sceneName)
     local scene = require("src.scenes." .. sceneName)
+    self.id = sceneName
     self.current = scene
     if self.current.load then
         self.current:load()
     end
 end
 
-function sceneManager:getCurrentScene()
-    return self.current
+function sceneManager:getCurrentSceneId()
+    return self.id
 end
 
 function sceneManager:update(dt)

@@ -16,22 +16,26 @@ function maingame:load()
     self.timer = 0
     self.playable = false
     self.boundary = {x = 0, y = 0, w = 400, h = 400}
-    -- self.boundary = {x = nil, y = nil, w = nil, h = nil}
+    self.boundary = {x = nil, y = nil, w = nil, h = nil}
     self.state = -1 -- start -1
     self.interactShow = false
     self.interact = false
+    self.hasInteracted = {}
     self.flashlightDist = 0
+    self.transitionTo2 = false
 
     -- create maingame's canvas
     self.canvas = CanvasManager:new()
     self.canvas:create("maingame", const.GAME_WIDTH, const.GAME_HEIGHT, const.SCALE_FACTOR, {"nearest", "nearest"})
 
-    self.lightRadius = 0
+    -- first tween
+    self.lightRadius = 0 -- default 0
+    self.prevLightRadius = 0
     self.lightTween = Tween:new(0, 250, 2.5, function(t)
         return t < 0.5 and 2 * t * t or -1 + (4 - 2 * t) * t -- easeInOutQuad
     end)
 
-    self.player = Player:new(0, 0, 90, false) -- start 0, 0 -- speed 60
+    self.player = Player:new(0, 0, 60, false) -- start 0, 0 -- speed 60
     self.camera = Camera:new(0, 0, 1)
 
     self.player:setBoundary(self.boundary.x, self.boundary.y, self.boundary.w, self.boundary.h)
@@ -41,11 +45,11 @@ function maingame:load()
 
     -- interactable stuffs
     self.interactables = Interactables:new()
-    self.interactables:add("drawing", -65, -940, 10, love.graphics.newImage("assets/img/maro-drawing.png"), function()
-        if not self.interactShow then self.interact = true end
-    end, "while", {-0.4, 0.2, 0.2}, function ()
-        self.interact = false
-    end, true)
+    self.interactables:add("drawing", -125, -940, 10, love.graphics.newImage("assets/img/maro-drawing.png"), nil, "while", {-0.4, 0.2, 0.2}, nil, true)
+    self.interactables:add("wardrobe", 200, -1050, 30, love.graphics.newImage("assets/img/wardrobe-closed.png"), nil, "while", {0, 1.1, 1.2}, nil, true)
+    self.interactables:add("bed", 75, -1440, 20, love.graphics.newImage("assets/img/maro-bed.png"), nil, "while", {-0.1, 1.75, 1.55}, nil, true)
+    self.hasInteracted["drawing"] = false
+    self.hasInteracted["wardrobe"] = false
 
     -- (0,0) point particles
     self.firstParticles = utils.particle.generateParticles(0 - 20/2, 0 - 20/2, 20, 20, function(x, y)
@@ -71,6 +75,7 @@ function maingame:load()
 
     self.flashlights:add(-330, -420)
     self.flashlights:add(-30, -900)
+    self.flashlights:add(210, -1350)
 end
 
 function maingame:update(dt)
@@ -84,6 +89,8 @@ function maingame:update(dt)
     -- update interactables
     self.interactables:update(x, y)
     self.interactableId, _ = self.interactables:getClosest(x, y)
+    if self.interactableId then self.interact = true else self.interact = false end
+    if self.interactShow then self.interact = false end
 
     -- light shader
     self.lightTween:update(dt)
@@ -101,7 +108,6 @@ function maingame:update(dt)
     self.lightTween:onFinish(function()
         self.playable = true
         self.state = 0
-        self.timer = 0
     end)
     if self.state >= 0 then
         if self.interactShow then self.playable = false else self.playable = true end
@@ -122,6 +128,21 @@ function maingame:update(dt)
         local t = utils.clamp((flashlightDist - minDist) / (maxDist - minDist), 0, 1)
         self.lightRadius = (1 - t) * 1500 + t * 250
         self.boundary = {x = nil, y = nil, w = nil, h = nil}
+    elseif self.state == 2 then
+        local minDist, maxDist = 25, 150
+        local t = utils.clamp((flashlightDist - minDist) / (maxDist - minDist), 0, 1)
+        self.lightRadius = (1 - t) * 1500 + t * 250
+        self.boundary = {x = nil, y = nil, w = nil, h = nil}
+    end
+
+    -- transition to maingame2
+    if self.transitionTo2 then
+        self.lightTweenLast:update(dt)
+        self.lightRadius = self.lightTweenLast.value
+
+        if self.timer > 4 then
+            require("src.scenes.sceneManager"):load("maingame2")
+        end
     end
 end
 
@@ -148,15 +169,24 @@ function maingame:draw()
         local image = self.interactables:getImage(self.interactableId)
         if self.interactableId == "drawing" then
             love.graphics.draw(image, const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT/2, -0.1, 15, nil, image:getWidth()/2, image:getHeight()/2)
+            if self.hasInteracted["drawing"] then
+                self.text:print("[A drawing of a happy family.]", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+            end
+        elseif self.interactableId == "wardrobe" and self.hasInteracted["wardrobe"] then
+            self.text:print("[Maro's bedroom wardrobe.]", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
         end
     end
 
+    if self.transitionTo2 then return end
+
     -- narrator's comments (monologues)
-    if utils.isValueAround(self.time, 2.75, 6) then
-        self.text:print("He needs to find out.", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
-    end
     if self.interact then
         self.text:print("[Press ENTER to interact]", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+    end
+    if self.state == 0 then
+        if utils.isValueAround(self.timer, 2.75, 6) then
+            self.text:print("He needs to find out.", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+        end
     end
     if self.state == 1 then
         if utils.isValueAround(self.timer, 0, 3) then
@@ -173,14 +203,26 @@ function maingame:draw()
         end
     end
     if self.state == 2 then
-        if utils.isValueAround(self.timer, 0, 3) then
-            self.text:print("Aw, a portrait of a happy family.", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
-        end
-        if utils.isValueAround(self.timer, 3.5, 6.5) then
-            self.text:print("I wonder who drew it.", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
-        end
-        if utils.isValueAround(self.timer, 7.5, 11) then
-            self.text:print("\"I dream of having a good Papa and Mama...\"", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+        if not self.hasInteracted["drawing"] then
+            if utils.isValueAround(self.timer, 0, 3) then
+                self.text:print("Aw, a portrait of a happy family.", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+            end
+            if utils.isValueAround(self.timer, 3.5, 6.5) then
+                self.text:print("I wonder who drew it.", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+            end
+            if utils.isValueAround(self.timer, 7.5, 11) then
+                self.text:print("\"I dream of having a good Papa and Mama...\"", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+            end
+        elseif not self.hasInteracted["wardrobe"] then
+            if utils.isValueAround(self.timer, 0, 3) then
+                self.text:print("You used to hide here, don't you?", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+            end
+            if utils.isValueAround(self.timer, 4, 7.5) then
+                self.text:print("\"Papa lock me here as a punishment...\"", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+            end
+            if utils.isValueAround(self.timer, 8.5, 11.5) then
+                self.text:print("No wonder you're afraid of the dark.", const.SCREEN_WIDTH/2, const.SCREEN_HEIGHT*9/10, 2, 0.5, 0.5)
+            end
         end
     end
 
@@ -204,28 +246,52 @@ function maingame:draw()
 end
 
 function maingame:keypressed(key)
-    ENTER = key == "return"
+    ENTER = (key == "return" and not self.transitionTo2)
 
     -- if interactSHow == true, able to put it false/down/hide show
-    if self.interactShow then
-        if ENTER then
-            if self.state == 2 then
-                if self.timer > 11 then
+    if ENTER and self.interactShow then
+        if self.state == 2 then
+            if not self.hasInteracted[self.interactableId] then
+                if self.timer > 12 then
                     self.interactables:enable(self.interactableId)
                     self.interactShow = false
+                    self.hasInteracted[self.interactableId] = true
                 end
+            else
+                self.interactables:enable(self.interactableId)
+                self.interactShow = false
             end
         end
     end
 
     -- if interact == true, able to show it
     if ENTER and self.interact then
+        -- bed
+        if self.interactableId == "bed" then
+            self.transitionTo2 = true
+            self.prevLightRadius = self.lightRadius
+
+            -- last tween before mobing to maingame2
+            self.lightTweenLast = Tween:new(self.prevLightRadius, 0, 3, function(t)
+                return t < 0.5 and 2 * t * t or -1 + (4 - 2 * t) * t -- easeInOutQuad
+            end)
+
+            self.state = 3
+        end
+
         self.interactShow = true
         self.interactables:disable(self.interactableId)
         self.interact = false
 
+        if not self.hasInteracted[self.interactableId] then self.timer = 0 end
+
+        -- has interacted statuses
+        if self.interactableId == "wardrobe" and self.hasInteracted["wardrobe"] then
+            self.interactables:changeImage("wardrobe", love.graphics.newImage("assets/img/wardrobe-opened.png"))
+        end
+
         -- if currently in state 1
-        if self.state == 1 then
+        if self.state == 1 and self.interactableId == "drawing" then
             self.state = 2
             self.timer = 0
         end

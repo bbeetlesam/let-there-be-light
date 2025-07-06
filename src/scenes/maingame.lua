@@ -135,13 +135,13 @@ function maingame:update(dt)
         self.boundary = {x = nil, y = nil, w = nil, h = nil}
     end
 
-    -- transition to maingame2
+    -- transition to maingameBridge
     if self.transitionTo2 then
         self.lightTweenLast:update(dt)
         self.lightRadius = self.lightTweenLast.value
 
         if self.timer > 4 then
-            require("src.scenes.sceneManager"):load("maingame2")
+            require("src.scenes.sceneManager"):load("maingameBridge")
         end
     end
 end

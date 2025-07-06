@@ -99,6 +99,11 @@ function Interactables:getImage(id)
     return obj.image
 end
 
+function Interactables:changeImage(id, image)
+    local obj = self.objects[id]
+    obj.image = image or obj.image
+end
+
 function Interactables:draw()
     for _, obj in pairs(self.objects) do
         if obj.image and love.graphics.isCreated(obj.image) then

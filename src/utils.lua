@@ -82,7 +82,7 @@ utils.particle = {
     generateParticles = function(x, y, w, h, particleObj, occurence)
         local particles = {}
 
-        for i = 1, occurence do
+        for _ = 1, occurence do
             local px = math.random() * w + x
             local py = math.random() * h + y
 
@@ -108,6 +108,18 @@ utils.particle = {
             end
         end
     end,
+
+    addParticle = function(particles, x, y, particleObj)
+        table.insert(particles, {
+            x = x,
+            y = y,
+            obj = particleObj or function(x, y)
+                love.graphics.setColor(0.45, 0.4, 0.35, 0.4)
+                love.graphics.points(x, y)
+                love.graphics.setColor(1, 1, 1)
+            end
+        })
+    end
 }
 
 return utils

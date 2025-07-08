@@ -24,7 +24,7 @@ function maingame2:load()
     self.canvas:create("maingame", const.GAME_WIDTH, const.GAME_HEIGHT, const.SCALE_FACTOR, {"nearest", "nearest"})
 
     -- create player
-    self.player = Player:new(-15, -5, 90, true) -- start -15, -5 -- speed 60
+    self.player = Player:new(-15, -5, 60, true) -- start -15, -5 -- speed 60
     self.player:setHardLimits(-600, 550, -700, 750)
     self.camera = Camera:new(-15, -5, 1)
 
@@ -171,12 +171,12 @@ function maingame2:draw()
     end
 
     -- debugging infos
-    local x, y = self.player:getPosition()
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("X: " .. x .. "\nY: " .. y, 10, 10)
-    love.graphics.print("state: " .. self.state, 10, 50)
-    love.graphics.print("id: " .. (self.interactableId or "nil"), 10, 70)
-    love.graphics.print("time: " .. self.time .. "\ntimer: " .. self.timer, 10, 100)
+    -- local x, y = self.player:getPosition()
+    -- love.graphics.setColor(1, 1, 1)
+    -- love.graphics.print("X: " .. x .. "\nY: " .. y, 10, 10)
+    -- love.graphics.print("state: " .. self.state, 10, 50)
+    -- love.graphics.print("id: " .. (self.interactableId or "nil"), 10, 70)
+    -- love.graphics.print("time: " .. self.time .. "\ntimer: " .. self.timer, 10, 100)
 end
 
 function maingame2:keypressed(key)

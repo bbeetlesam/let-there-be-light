@@ -1,6 +1,8 @@
 local Flashlight = {}
 Flashlight.__index = Flashlight
 
+local flashlightImage = love.graphics.newImage("assets/img/flashlight.png")
+
 function Flashlight:new()
     local self = setmetatable({}, Flashlight)
     self.instances = {}
@@ -19,9 +21,8 @@ function Flashlight:add(x, y)
                 return math.sqrt(dx * dx + dy * dy)
             end,
             draw = function(self)
-                love.graphics.setColor(1.0, 0.9, 0.7, 0.2)
-                love.graphics.circle("fill", self.x, self.y, 5)
                 love.graphics.setColor(1, 1, 1)
+                love.graphics.draw(flashlightImage, self.x, self.y, 0.35, 0.5, nil, flashlightImage:getWidth()/2, flashlightImage:getHeight()/2)
             end
         }
     })

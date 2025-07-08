@@ -64,7 +64,10 @@ function CanvasManager:with(name, drawFunc)
     end
 end
 
-function CanvasManager:drawAll()
+function CanvasManager:drawAll(offsetX, offsetY)
+    local offsetX = offsetX or 0
+    local offsetY = offsetY or 0
+
     for _, canvasData in pairs(self.canvases) do
         local resultCanvas = canvasData.base
 
@@ -79,7 +82,7 @@ function CanvasManager:drawAll()
             resultCanvas = temp
         end
 
-        love.graphics.draw(resultCanvas, 0, 0, 0, canvasData.scale or 1, canvasData.scale or 1)
+        love.graphics.draw(resultCanvas, offsetX, offsetY, 0, canvasData.scale or 1, canvasData.scale or 1)
         love.graphics.setColor(1, 1, 1)
     end
 end

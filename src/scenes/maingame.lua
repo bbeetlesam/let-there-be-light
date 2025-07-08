@@ -8,6 +8,7 @@ local CanvasManager = require("src.canvasManager")
 local Tween = require("src.tween")
 local Flashlight = require("src.flashlight")
 local Interactables = require("src.interactables")
+local sounds = require("src.sounds")
 
 local maingame = {}
 
@@ -75,7 +76,7 @@ function maingame:load()
 
     self.flashlights:add(-330, -420)
     self.flashlights:add(-30, -900)
-    self.flashlights:add(210, -1350)
+    self.flashlights:add(210, -1250)
 end
 
 function maingame:update(dt)
@@ -232,17 +233,17 @@ function maingame:draw()
     end
 
     -- debugging infos
-    local x, y = self.player:getPosition()
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("X: " .. x .. "\nY: " .. y, 10, 10)
-    love.graphics.print("time: " .. self.time .. "\ntimer: " .. self.timer, 10, 40)
-    love.graphics.print("Light: " .. self.lightRadius, 10, 80)
-    love.graphics.print("playable: " .. tostring(self.playable), 10, 100)
-    love.graphics.print("current state: " .. self.state, 10, 120)
-    love.graphics.print("interact: " .. tostring(self.interact), 10, 140)
-    love.graphics.print("interact show: " .. tostring(self.interactShow), 10, 160)
-    love.graphics.print("dist to fl: " .. self.flashlightDist, 10, 180)
-    love.graphics.print("inter id: " .. (self.interactableId or "nil"), 10, 200)
+    -- local x, y = self.player:getPosition()
+    -- love.graphics.setColor(1, 1, 1)
+    -- love.graphics.print("X: " .. x .. "\nY: " .. y, 10, 10)
+    -- love.graphics.print("time: " .. self.time .. "\ntimer: " .. self.timer, 10, 40)
+    -- love.graphics.print("Light: " .. self.lightRadius, 10, 80)
+    -- love.graphics.print("playable: " .. tostring(self.playable), 10, 100)
+    -- love.graphics.print("current state: " .. self.state, 10, 120)
+    -- love.graphics.print("interact: " .. tostring(self.interact), 10, 140)
+    -- love.graphics.print("interact show: " .. tostring(self.interactShow), 10, 160)
+    -- love.graphics.print("dist to fl: " .. self.flashlightDist, 10, 180)
+    -- love.graphics.print("inter id: " .. (self.interactableId or "nil"), 10, 200)
 end
 
 function maingame:keypressed(key)
@@ -288,12 +289,19 @@ function maingame:keypressed(key)
         -- has interacted statuses
         if self.interactableId == "wardrobe" and self.hasInteracted["wardrobe"] then
             self.interactables:changeImage("wardrobe", love.graphics.newImage("assets/img/wardrobe-opened.png"))
+            sounds.openWardrobe:play()
+            sounds.openWardrobe:setVolume(0.4)
         end
 
         -- if currently in state 1
         if self.state == 1 and self.interactableId == "drawing" then
             self.state = 2
             self.timer = 0
+        end
+
+        if self.interactableId == "drawing" then
+            sounds.paperFlip:play()
+            sounds.paperFlip:setVolume(0.4)
         end
     end
 end

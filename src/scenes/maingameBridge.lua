@@ -9,7 +9,7 @@ local maingameBridge = {}
 function maingameBridge:load()
     self.time = 0
     self.timer = 0
-    self.textIndex = 10
+    self.textIndex = 1
     self.choosing = false
     self.answer = nil
 

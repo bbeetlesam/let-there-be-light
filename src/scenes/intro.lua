@@ -1,16 +1,21 @@
 local const = require("src.const")
 local Font = require("src.font")
+local sounds = require("src.sounds")
 
 local intro = {}
 
 function intro:load()
+    self.time = 0
     self.timer = 0
 
     self.title = Font:new({"assets/img/sprite-font2.png", "assets/img/sprite-font1.png"}, {12, 12}, {16, 16}, 16, 6, 10)
     self.transitioning = false
+    sounds.tvTalking:play()
+    sounds.tvTalking:setVolume(0.7)
 end
 
 function intro:update(dt)
+    self.time = self.time + dt
     self.title:update(dt)
 
     if self.transitioning then
@@ -32,6 +37,7 @@ function intro:draw()
 end
 
 function intro:keypressed(key)
+    sounds.tvTalking:stop()
     self.transitioning = true
 end
 

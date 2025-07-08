@@ -18,7 +18,7 @@ function Interactables:add(id, x, y, radius, image, callback, mode, drawConf, on
         onLeave = onLeave,
         image = image,
         mode = mode or "once",
-        drawConf = drawConf or {0, 1, 1},
+        drawConf = drawConf or {0, 1, 1, 0, 0},
         enabled = enabled,
         inRange = false
     }
@@ -108,7 +108,7 @@ function Interactables:draw()
     for _, obj in pairs(self.objects) do
         if obj.image and love.graphics.isCreated(obj.image) then
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.draw(obj.image, obj.x, obj.y, obj.drawConf[1], obj.drawConf[2], obj.drawConf[3], obj.image:getWidth()/2, obj.image:getHeight()/2)
+            love.graphics.draw(obj.image, obj.x + (obj.drawConf[4] or 0), obj.y + (obj.drawConf[5] or 0), obj.drawConf[1], obj.drawConf[2], obj.drawConf[3], obj.image:getWidth()/2, obj.image:getHeight()/2)
         else
             -- fallback
             love.graphics.setColor(1, 1, 1, 0.1)

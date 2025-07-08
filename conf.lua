@@ -11,7 +11,7 @@ function love.conf(t)
 
     -- for debugging
     t.version = "11.5"
-    t.console = true
+    t.console = false
     t.identity = nil
     t.window.display = 2
 end

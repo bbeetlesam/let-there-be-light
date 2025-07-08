@@ -1,4 +1,5 @@
 local utils = require("src.utils")
+local sounds = require("src.sounds")
 
 local atlas = love.graphics.newImage("assets/img/sprite-maro.png")
 local quads = {}
@@ -47,6 +48,11 @@ function Player:new(x, y, speed, bool)
     self.speed = speed or 60
     self.playable = bool
 
+    self.blockingSquares = {}
+    self.offsetY = 20
+    self.offsetLeft = -4
+    self.offsetRight = 4
+
     self.boundX = nil
     self.boundY = nil
     self.boundW = nil
@@ -56,6 +62,8 @@ function Player:new(x, y, speed, bool)
     self.limitMaxX = nil
     self.limitMinY = nil
     self.limitMaxY = nil
+
+    self.timer = 0
     return self
 end
 
@@ -76,6 +84,22 @@ function Player:update(dt)
     if left then dx = dx - 1 end
     if right then dx = dx + 1 end
 
+    -- step sound
+    if (up or down or left or right) and self.playable then
+    self.timer = self.timer + dt
+
+    local stepInterval = 25 / self.speed
+
+    if self.timer >= stepInterval then
+        self.timer = 0
+
+        -- CLONE biar bisa overlap
+        local sfx = sounds.step:clone()
+        sfx:setVolume(0.3)
+        sfx:play()
+    end
+end
+
     -- normalize vector (for diagonal movement)
     local length = math.sqrt(dx * dx + dy * dy)
     if length > 0 then
@@ -94,8 +118,10 @@ function Player:update(dt)
         self.x = math.max(self.boundX, math.min(nextX, self.boundX + self.boundW))
         self.y = math.max(self.boundY, math.min(nextY, self.boundY + self.boundH))
     else
-        self.x = nextX
-        self.y = nextY
+        if not self:willCollideWithBlock(nextX, nextY) then
+            self.x = nextX
+            self.y = nextY
+        end
     end
 
     -- hard limit boundary
@@ -182,8 +208,8 @@ function Player:setHardLimits(minX, maxX, minY, maxY)
 end
 
 function Player:willHitLimit()
-    local nextX = self.x + self.dx
-    local nextY = self.y + self.dy
+    local nextX = self.x + (self.dx or 0)
+    local nextY = self.y + (self.dy or 0)
 
     local hitX = false
     local hitY = false
@@ -204,6 +230,38 @@ end
 
 function Player:isClamped()
     return self.clampedX or self.clampedY
+end
+
+function Player:addBlockingSquare(x, y, w, h)
+    table.insert(self.blockingSquares, {x = x, y = y, w = w, h = h})
+end
+
+function Player:willCollideWithBlock(nextX, nextY)
+    if not self.blockingSquares then return false end
+
+    local checkPoints = {
+        {nextX + self.offsetLeft, nextY + self.offsetY},
+        {nextX + self.offsetRight, nextY + self.offsetY},
+    }
+
+    for _, block in ipairs(self.blockingSquares) do
+        for _, point in ipairs(checkPoints) do
+            if utils.isPosInside(point, block.x, block.y, block.w, block.h) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+-- for debugging
+function Player:drawBlockingSquares()
+    love.graphics.setColor(1, 0, 0, 0.5) -- red
+    for _, block in ipairs(self.blockingSquares) do
+        love.graphics.rectangle("line", block.x, block.y, block.w, block.h)
+    end
+    love.graphics.setColor(1, 1, 1)
 end
 
 return Player
